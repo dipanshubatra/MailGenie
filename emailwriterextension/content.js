@@ -1,5 +1,5 @@
-// MailGenie: Enterprise Modern Gmail Integration Content Script v2.0
-console.log("MailGenie Extension - Content Script Loaded v2.0");
+// MailGenie: Enterprise Modern Gmail Integration Content Script v2.1
+console.log("MailGenie Extension - Content Script Loaded v2.1");
 
 (function () {
   'use strict';
