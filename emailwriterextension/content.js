@@ -399,6 +399,50 @@ console.log("MailGenie Extension - Content Script Loaded v2.0");
     return Array.from(containers);
   }
 
+  // Find the exact editable text area for a given compose container
+  function getComposeEditor(container) {
+    const selectors = [
+      '[role="textbox"][g_editable="true"]',
+      '[role="textbox"][contenteditable="true"]',
+      '[contenteditable="true"]',
+      'div[aria-label*="Message"]',
+      'div[aria-label*="Body"]',
+      '.Am.Al.editable'
+    ];
+
+    if (container) {
+      for (const sel of selectors) {
+        const box = container.querySelector(sel);
+        if (box) return box;
+      }
+
+      // Check parent dialog/form/thread wrappers if container is just the toolbar element
+      const root = container.closest('[role="dialog"]') ||
+                   container.closest('form') ||
+                   container.closest('.gM') ||
+                   container.closest('.nH') ||
+                   container.closest('.g3') ||
+                   container.closest('.dw') ||
+                   container.parentElement;
+
+      if (root) {
+        for (const sel of selectors) {
+          const box = root.querySelector(sel);
+          if (box) return box;
+        }
+      }
+    }
+
+    // Fallback: locate any visible contenteditable box in Gmail
+    const allBoxes = document.querySelectorAll('[contenteditable="true"], [role="textbox"]');
+    for (const box of allBoxes) {
+      if (box.offsetWidth > 0 && box.offsetHeight > 0) {
+        return box;
+      }
+    }
+    return null;
+  }
+
   // Prevent duplicate toolbar rendering
   function cleanupDuplicateToolbars() {
     const wrappers = document.querySelectorAll('.mailgenie-wrapper');
@@ -468,9 +512,7 @@ console.log("MailGenie Extension - Content Script Loaded v2.0");
           return;
         }
 
-        const composeBox = container.querySelector('[role="textbox"][g_editable="true"]') ||
-                           container.querySelector('[role="textbox"][contenteditable="true"]') ||
-                           container.querySelector('[contenteditable="true"]');
+        const composeBox = getComposeEditor(container);
 
         if (!composeBox) {
           showToast('Could not locate email compose editor', 'error');

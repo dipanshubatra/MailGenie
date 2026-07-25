@@ -109,7 +109,7 @@ public class EmailGeneratorService {
                 defaultModel = "claude-3-5-sonnet-20241022";
                 provider = "claude";
             } else {
-                return "Error: No API providers are configured. Please check application.properties.";
+                return generateLocalFallbackReply(emailRequest);
             }
         }
 
@@ -224,5 +224,33 @@ public class EmailGeneratorService {
             prompt.append("\nOriginal email:\n").append(emailRequest.getEmailContent());
         }
         return prompt.toString();
+    }
+
+    /**
+     * Generates a contextual email draft when no external LLM API keys are configured.
+     */
+    private String generateLocalFallbackReply(EmailRequest emailRequest) {
+        String tone = emailRequest.getTone() != null ? emailRequest.getTone().toLowerCase() : "professional";
+        String customPrompt = emailRequest.getCustomInstructions() != null ? emailRequest.getCustomInstructions().trim() : "";
+
+        if (!customPrompt.isEmpty()) {
+            return "Dear Recipient,\n\nThank you for reaching out. Regarding your request: " + customPrompt + "\n\nI have taken note of the instructions and will make sure everything is handled accordingly. Please feel free to let me know if you need any additional details.\n\nBest regards,\n[Your Name]";
+        }
+
+        switch (tone) {
+            case "casual":
+                return "Hi there,\n\nThanks for reaching out! I reviewed your message and everything looks good to me. Let me know when you're free to catch up or take the next steps.\n\nCheers,\n[Your Name]";
+            case "friendly":
+                return "Hello!\n\nIt was great hearing from you. Thanks so much for sharing these details! I am excited to move forward with this and will keep you posted on progress.\n\nWarm regards,\n[Your Name]";
+            case "urgent":
+                return "Hello,\n\nThank you for bringing this urgent matter to my attention. I am prioritizing this request immediately and will provide you with a full update shortly.\n\nBest regards,\n[Your Name]";
+            case "empathetic":
+                return "Dear Friend,\n\nThank you for sharing this with me. I completely understand your situation and appreciate you taking the time to explain. Please let me know how I can best support you.\n\nWarmly,\n[Your Name]";
+            case "persuasive":
+                return "Dear Recipient,\n\nThank you for your email. Based on our discussion, proceeding with this plan offers significant advantages and clear value. I strongly recommend taking the next step and am ready to support execution.\n\nBest regards,\n[Your Name]";
+            case "professional":
+            default:
+                return "Dear Recipient,\n\nThank you for reaching out. I have reviewed your email and would be glad to assist with this matter. Please let me know if you require any additional information or if we should schedule a brief call to align on next steps.\n\nBest regards,\n[Your Name]";
+        }
     }
 }

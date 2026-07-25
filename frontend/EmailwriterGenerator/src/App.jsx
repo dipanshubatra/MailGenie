@@ -212,6 +212,7 @@ function App() {
         language
       });
       const reply = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+      setGeneratedReply(reply);
       showNotification('AI Reply generated successfully!', 'success');
 
       // Refresh history list
