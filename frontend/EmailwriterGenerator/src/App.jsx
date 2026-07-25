@@ -211,13 +211,27 @@ function App() {
         model,
         language
       });
-      const reply = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
-      setGeneratedReply(reply);
-      showNotification('AI Reply generated successfully!', 'success');
+      const rawData = response.data;
+      const reply = typeof rawData === 'string' ? rawData : (rawData?.reply || JSON.stringify(rawData));
 
-      // Refresh history list
-      const histRes = await axios.get(`${backendUrl}/api/history`);
-      setHistoryList(histRes.data);
+      if (!reply || reply.trim().startsWith("Error:") || reply.includes("API error") || reply.startsWith("Unexpected error")) {
+        const errorMsg = reply || "Failed to generate AI reply. Please check API configurations.";
+        setError(errorMsg);
+        setGeneratedReply('');
+        showNotification(errorMsg, 'error');
+      } else {
+        setGeneratedReply(reply);
+        setError('');
+        showNotification('AI Reply generated successfully!', 'success');
+
+        // Refresh history list
+        try {
+          const histRes = await axios.get(`${backendUrl}/api/history`);
+          setHistoryList(histRes.data);
+        } catch (hErr) {
+          console.warn("History refresh skipped:", hErr);
+        }
+      }
     } catch (err) {
       setError('Failed to generate email reply. Please check your backend connection and API configurations.');
       showNotification('Generation failed. Check backend connection.', 'error');
