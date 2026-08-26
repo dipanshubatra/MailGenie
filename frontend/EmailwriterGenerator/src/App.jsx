@@ -10,6 +10,7 @@ import PrivacyPage from './pages/PrivacyPage';
 import SecurityPage from './pages/SecurityPage';
 import EnterpriseTelemetryDashboard from './components/EnterpriseTelemetryDashboard';
 import ContextAwareTemplateList from './components/ContextAwareTemplateList';
+import BackupArchiveDashboard from './components/BackupArchiveDashboard';
 
 import {
   Box,
@@ -460,6 +461,7 @@ function App() {
     { id: 'context_templates', label: '🧠 Context Templates', icon: '🧠' },
     { id: 'analytics', label: '📊 Usage Analytics', icon: '📈' },
     { id: 'telemetry', label: '🚀 Enterprise Telemetry', icon: '🚀' },
+    { id: 'backup', label: '🛡️ Backup & Archive', icon: '🛡️' },
     { id: 'settings', label: '⚙️ Settings', icon: '⚙️' }
   ];
 
@@ -1297,6 +1299,11 @@ Custom Directives: ${studioCustomInstruction || 'None'}
                   </Grid>
                 </Grid>
               </Box>
+            )}
+
+            {/* TAB: BACKUP & ARCHIVE */}
+            {activeTab === 'backup' && (
+              <BackupArchiveDashboard backendUrl={backendUrl} />
             )}
 
             {/* TAB: SETTINGS */}
